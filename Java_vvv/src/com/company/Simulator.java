@@ -1,14 +1,27 @@
-package pl.kurs.restapi.services;
+package com.company;
 
 import java.time.LocalDateTime;
 
 public class Simulator {
     static long timeStampInMinutes = 1;
 
-    TimeSimulator timeSimulator = new TimeSimulator();
+    TimeSimulator timeSimulator = new TimeSimulator(false);
 
-    public void moveTimeForward(){
+
+    public void changeParams(){
+
+    }
+
+    public void oneStep(){
         timeSimulator.moveTimeForwardByMinutes(timeStampInMinutes);
+
+
+
+
+
+
+
+
 
 
 

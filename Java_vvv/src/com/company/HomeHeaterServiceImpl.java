@@ -1,36 +1,29 @@
-package pl.kurs.restapi.services;
+package com.company;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import javax.el.ValueExpression;
+
 import java.time.LocalDateTime;
 
-@Service
 public class HomeHeaterServiceImpl implements HomeHeaterService{
 
-    @Autowired
-    ExternalTemperatureServiceImpl externalTemperatureService;
 
-    @Autowired
+    RequiredRequiredInternalTemperatureServiceImpl externalTemperatureService;
     TimeSimulator timeSimulator;
+    ExpectedOutdoorTemperatureServiceImpl expectedTemperatureService;
 
-    @Autowired
-    ExpectedTemperatureServiceImpl expectedTemperatureService;
-
-    public enum State {
+    public enum Mode {
         Heat,Maintenance,NoHeat,Weathering
     }
 
 
     private double temperatureInside = 20;
     private LocalDateTime lastTimeOfHeating = LocalDateTime.now();
-    private State state = State.NoHeat;
+
 
     @Override
-    public double getCost(){
-        if(state == State.Maintenance){
+    public double getEnergyCost(Mode mode){
+        if(mode == Mode.Maintenance){
             if(externalTemperatureService.get() > 20){ //>20
                 return 0;
             } else if(externalTemperatureService.get() > 15){ //15-20
@@ -49,7 +42,7 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
                 return 9;
             }
         }
-        if(state == State.Heat){
+        if(mode == Mode.Heat){
             if(externalTemperatureService.get() > 20){ //>20
                 return 0;
             } else if(externalTemperatureService.get() > 15){ //15-20
@@ -74,21 +67,45 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
     }
 
     @Override
-    public void setHeater(State state){
-        this.state=state;
-    }
-
-    @Override
-    public void heatOrNot(){
+    public double simAndGetEnergy(Mode mode, Long minutes) throws Exception {
         lastTimeOfHeating = timeSimulator.getLocalDateTime();
+        if(mode == Mode.Heat){
+            this.temperatureInside = temperatureInside+1;
+        } else if(mode == Mode.Weathering){
+            this.weathering(minutes);
+        } else if(mode == Mode.NoHeat){
+//            this.maintenance(minutes);
+        }
         //TODO
+
+
+        return getEnergyCost(mode)*minutes/60;
     }
 
-    @Override
-    public void weathering(double percentageOfHour) throws Exception {
-        if(percentageOfHour>1.0){
-            throw new Exception("BadValue");
-        }
+//    private void maintenance(Long minutes){
+//        if(externalTemperatureService.get() > 20){ //>20
+//            return 0;
+//        } else if(externalTemperatureService.get() > 15){ //15-20
+//            return 2;
+//        } else if(externalTemperatureService.get() > 5){ //5-15
+//            return 4;
+//        } else if(externalTemperatureService.get() > 0){ //0-5
+//            return 5;
+//        } else if(externalTemperatureService.get() > -5){ //0 - -5
+//            return 6;
+//        } else if(externalTemperatureService.get() > -10){ //-5 - 10
+//            return 7;
+//        } else if(externalTemperatureService.get() > -20){ //-10 - -20
+//            return 10;
+//        } else{ // <-20
+//            return 12;
+//        }
+//
+//    }
+
+    private void weathering(Long minutes) throws Exception {
+        double percentageOfHour = minutes/60;
+
         double externalTemperature = externalTemperatureService.get();
 
         if(externalTemperature>temperatureInside){
@@ -98,12 +115,6 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
             this.temperatureInside = temperatureInside - (externalTemperature+temperatureInside)*percentageOfHour;
         }
     }
-
-    @Override
-    public double getDiffOfTemperatureInHome(){
-        return temperatureInside-expectedTemperatureService.get();
-    }
-
 
 
 

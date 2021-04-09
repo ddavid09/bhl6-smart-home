@@ -1,10 +1,8 @@
-package pl.kurs.restapi.services;
+package com.company;
 
-import org.springframework.stereotype.Service;
 
-import static com.google.common.primitives.Doubles.min;
+import static java.lang.Double.min;
 
-@Service
 public class WaterTankServiceImpl implements WaterTankService{
 
     double waterAmount = 0.0;

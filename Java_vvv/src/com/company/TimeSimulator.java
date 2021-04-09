@@ -1,12 +1,9 @@
-package pl.kurs.restapi.services;
-
-import org.springframework.stereotype.Service;
+package com.company;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-@Service
 public class TimeSimulator {
     private LocalDateTime prevLocalDateTime = LocalDateTime.now();
     private LocalDateTime localDateTime = LocalDateTime.now().plusHours(1);
@@ -14,6 +11,10 @@ public class TimeSimulator {
 
     public LocalDateTime getLocalDateTime() {
         return localDateTime;
+    }
+
+    public TimeSimulator(boolean isVacations) {
+        this.isVacations = isVacations;
     }
 
     public void set(LocalDateTime localDateTime, boolean isVacations) {

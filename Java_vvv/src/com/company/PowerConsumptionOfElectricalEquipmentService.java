@@ -1,7 +1,6 @@
-package pl.kurs.restapi.services;
+package com.company;
 
 
-import org.springframework.stereotype.Service;
 
 public interface PowerConsumptionOfElectricalEquipmentService {
     public double get();

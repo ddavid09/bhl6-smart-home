@@ -1,15 +1,17 @@
-package pl.kurs.restapi.services;
+package com.company;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-@Service
-public class ExternalTemperatureServiceImpl implements  ExternalTemperatureService{
 
-    @Autowired
+public class RequiredRequiredInternalTemperatureServiceImpl implements RequiredInternalTemperatureService {
+
+    public RequiredRequiredInternalTemperatureServiceImpl(TimeSimulator timeSimulator) {
+        this.timeSimulator = timeSimulator;
+    }
+
     TimeSimulator timeSimulator;
 
     @Override

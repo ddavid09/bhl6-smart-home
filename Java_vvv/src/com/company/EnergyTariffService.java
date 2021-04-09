@@ -1,4 +1,4 @@
-package pl.kurs.restapi.services;
+package com.company;
 
 
 public interface EnergyTariffService {

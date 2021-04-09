@@ -1,8 +1,6 @@
-package pl.kurs.restapi.services;
+package com.company;
 
-import org.springframework.stereotype.Service;
 
-@Service
 public class CloudSimulator {
     double percentageOfCloud = 0.5;
 

@@ -1,26 +1,30 @@
 package pl.kurs.restapi.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pl.kurs.restapi.services.HelloService;
+import pl.kurs.restapi.services.RequiredInternalTemperatureService;
+import pl.kurs.restapi.services.TimeSimulator;
+
+import java.time.LocalDateTime;
 
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
 public class HelloController {
 
-    private final HelloService helloService;
+    private final TimeSimulator timeSimulator;
+    private final RequiredInternalTemperatureService requiredInternalTemperatureService;
 
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/")
-    public ResponseEntity<String> helloWorld(){
-        return  new ResponseEntity<>(helloService.helloWorld(), HttpStatus.OK);
+    public ResponseEntity<Double> helloWorld(@RequestParam LocalDateTime localDateTime, @RequestParam boolean isVacation){
+        timeSimulator.set(localDateTime,isVacation);
+        return  new ResponseEntity<>(requiredInternalTemperatureService.get(), HttpStatus.OK);
     }
 
 }

@@ -10,21 +10,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class PostServiceTest {
-
-    @Autowired
-    private PostService postService;
-
-    @Test
-    void shouldGetSinglePost() {
-        // given
-        // when
-        System.out.println("Sdasdds1");
-        PostResponse singlePost = postService.getPost("1");
-        System.out.println("Sdasdds2");
-        // then
-        assertThat(singlePost.getId()).isEqualTo("1");
-        System.out.println("Sdasdds3");
-        assertThat(singlePost.getContent()).isEqualTo("Content 1");
-        System.out.println("Sdasdds4");
-    }
+//
+//    @Autowired
+//    private PostService postService;
+//
+//    @Test
+//    void shouldGetSinglePost() {
+//        // given
+//        // when
+//        System.out.println("Sdasdds1");
+//        PostResponse singlePost = postService.getPost("1");
+//        System.out.println("Sdasdds2");
+//        // then
+//        assertThat(singlePost.getId()).isEqualTo("1");
+//        System.out.println("Sdasdds3");
+//        assertThat(singlePost.getContent()).isEqualTo("Content 1");
+//        System.out.println("Sdasdds4");
+//    }
 }

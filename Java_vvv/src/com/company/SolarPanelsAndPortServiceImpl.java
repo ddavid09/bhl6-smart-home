@@ -1,7 +1,6 @@
-package pl.kurs.restapi.services;
+package com.company;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
 
 import java.time.LocalTime;
 import java.time.Month;
@@ -10,17 +9,16 @@ import java.time.format.DateTimeFormatter;
 import static java.lang.Double.max;
 import static java.lang.Double.min;
 
-@Service
+
 public class SolarPanelsAndPortServiceImpl implements SolarPanelsAndPortService{
 
-    @Autowired
+
     CloudSimulator cloudSimulator;
-
-    @Autowired
     TimeSimulator timeSimulator;
-
-    @Autowired
     EnergyTariffServiceImpl energyTariffServiceImpl;
+    EnergyTariffServiceImpl energyTariffService;
+
+
 
     enum Mode{
         BatteryCharge,SellSolarEnergy,FullBatteryCharge,BatterySupport
@@ -33,48 +31,69 @@ public class SolarPanelsAndPortServiceImpl implements SolarPanelsAndPortService{
     double maxBatteryCapacity = 7;
     double maxPortInput = 10;
     double maxPortOutput = 5;
-    double batteryState = 0;
-    double demandEnergy = 0;
-    double energyTakenFromPort = 0;
-    double energySold = 0;
+    double actualBatteryCapacity = 0;
 
     @Override
-    public double simTime(){
-        double energyFromSolar = outputPowerOfSolarPanel();
-        energyTakenFromPort = 0;
-        energySold = 0;
+    public double simAndGetCost(double demandEnergy, Mode mode) throws Exception {
+        double availableEnergyFromSolar = outputPowerOfSolarPanel();
+        double availableEnergyFromPort = maxPortInput;
+        double availableEnergyFromBattery = min(maxBatteryOutput,actualBatteryCapacity);
+        double energyPurchased = 0;
+        double energySold = 0;
+
+        if(demandEnergy > availableEnergyFromSolar+availableEnergyFromPort+availableEnergyFromBattery){
+            throw new Exception("Za malo energi");
+        }
 
         switch (mode){
             case BatteryCharge:
-                if(demandEnergy<energyFromSolar){
-                    if(maxBatteryCapacity<batteryState){
-                        batteryState += min(maxBatteryCapacity,batteryState+min(maxBatteryInput,energyFromSolar-demandEnergy));
-                        energyTakenFromPort = 0;
+                if(demandEnergy < availableEnergyFromSolar){
+                    if(maxBatteryCapacity>actualBatteryCapacity){
+                        actualBatteryCapacity = min(maxBatteryCapacity,actualBatteryCapacity+min(maxBatteryInput,availableEnergyFromSolar-demandEnergy));
                     }
                 } else {
-                    energyTakenFromPort = demandEnergy-energyFromSolar;
+                    energyPurchased = demandEnergy-availableEnergyFromSolar;
                 }
                 break;
             case SellSolarEnergy:
-                if(demandEnergy<energyFromSolar){
-                    energySold = energyFromSolar-demandEnergy;
+                if(demandEnergy<availableEnergyFromSolar){
+                    energySold = availableEnergyFromSolar-demandEnergy;
                 } else {
-                    energyTakenFromPort = demandEnergy-energyFromSolar;
+                    energyPurchased = demandEnergy-availableEnergyFromSolar;
                 }
                 break;
             case FullBatteryCharge:
-                if(batteryState<maxBatteryCapacity){
-
+                if(actualBatteryCapacity < maxBatteryCapacity){
+                    double purchasedEnergyForBattery = actualBatteryCapacity-min(maxBatteryCapacity,actualBatteryCapacity+maxBatteryInput);
+                    actualBatteryCapacity = min(maxBatteryCapacity,actualBatteryCapacity+maxBatteryInput);
+                    if(demandEnergy > availableEnergyFromSolar){
+                        energyPurchased = demandEnergy-availableEnergyFromSolar+purchasedEnergyForBattery;
+                    }
                 } else{
-                    if(demandEnergy>energyFromSolar){
-                        energyTakenFromPort = demandEnergy-energyFromSolar;
+                    if(demandEnergy>availableEnergyFromSolar){
+                        energyPurchased = demandEnergy-availableEnergyFromSolar;
                     }
                 }
                 break;
             case BatterySupport:
+                if(demandEnergy > availableEnergyFromSolar+availableEnergyFromBattery){
+                    actualBatteryCapacity = (demandEnergy-availableEnergyFromSolar);
+                }
+                else {
+                    actualBatteryCapacity -= availableEnergyFromBattery;
+                    energyPurchased = demandEnergy-availableEnergyFromBattery-availableEnergyFromSolar;
+                }
                 break;
         }
-        return 0;
+
+        double returnValue = 0.0;
+        if(energySold>0){
+            returnValue -= energySold*energyTariffService.getSellPrice();
+        }
+        if(energyPurchased>0){
+            returnValue += energyPurchased*energyTariffService.getBuyPrice();
+        }
+        return returnValue;
     }
 
     private boolean timeIsBefore(String time){
@@ -259,37 +278,7 @@ public class SolarPanelsAndPortServiceImpl implements SolarPanelsAndPortService{
         this.maxPortOutput = maxPortOutput;
     }
 
-    public double getBatteryState() {
-        return batteryState;
-    }
 
-    public void setBatteryState(double batteryState) {
-        this.batteryState = batteryState;
-    }
-
-    public Mode getMode() {
-        return mode;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
-
-    public double getDemandEnergy() {
-        return demandEnergy;
-    }
-
-    public void setDemandEnergy(double demandEnergy) {
-        this.demandEnergy = demandEnergy;
-    }
-
-    public double getEnergyTakenFromPort() {
-        return energyTakenFromPort;
-    }
-
-    public void setEnergyTakenFromPort(double energyTakenFromPort) {
-        this.energyTakenFromPort = energyTakenFromPort;
-    }
 
 
 }
