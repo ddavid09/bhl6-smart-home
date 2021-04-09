@@ -1,0 +1,9 @@
+$base-background-color: #222222;
+$base-font-color: #ffffff;
+
+body{
+    background-color: $base-background-color;
+    color: $base-font-color;
+    width: calc(100% - 40px);
+    margin: 0 20px;
+}
