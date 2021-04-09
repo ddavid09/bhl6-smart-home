@@ -15,10 +15,13 @@ public class SolarPanelsAndPortServiceImpl implements SolarPanelsAndPortService{
 
     CloudSimulator cloudSimulator;
     TimeSimulator timeSimulator;
-    EnergyTariffServiceImpl energyTariffServiceImpl;
-    EnergyTariffServiceImpl energyTariffService;
+    EnergyTariffService energyTariffService;
 
-
+    public SolarPanelsAndPortServiceImpl(CloudSimulator cloudSimulator, TimeSimulator timeSimulator, EnergyTariffService energyTariffService) {
+        this.cloudSimulator = cloudSimulator;
+        this.timeSimulator = timeSimulator;
+        this.energyTariffService = energyTariffService;
+    }
 
     enum Mode{
         BatteryCharge,SellSolarEnergy,FullBatteryCharge,BatterySupport

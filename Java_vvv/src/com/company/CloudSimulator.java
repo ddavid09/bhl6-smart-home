@@ -4,6 +4,10 @@ package com.company;
 public class CloudSimulator {
     double percentageOfCloud = 0.5;
 
+    public CloudSimulator(TimeSimulator timeSimulator) {
+
+    }
+
     public double getPercentageOfCloud() {
         return percentageOfCloud;
     }
