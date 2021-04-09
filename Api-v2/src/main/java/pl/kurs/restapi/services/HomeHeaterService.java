@@ -9,4 +9,6 @@ public interface HomeHeaterService {
     void heatOrNot();
 
     void weathering(double percentageOfHour) throws Exception;
+
+    double getDiffOfTemperatureInHome();
 }

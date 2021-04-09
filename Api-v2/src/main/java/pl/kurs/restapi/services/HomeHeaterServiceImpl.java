@@ -16,6 +16,9 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
     @Autowired
     TimeSimulator timeSimulator;
 
+    @Autowired
+    ExpectedTemperatureServiceImpl expectedTemperatureService;
+
     public enum State {
         Heat,Maintenance,NoHeat,Weathering
     }
@@ -78,6 +81,7 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
     @Override
     public void heatOrNot(){
         lastTimeOfHeating = timeSimulator.getLocalDateTime();
+        //TODO
     }
 
     @Override
@@ -93,6 +97,11 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
         else{
             this.temperatureInside = temperatureInside - (externalTemperature+temperatureInside)*percentageOfHour;
         }
+    }
+
+    @Override
+    public double getDiffOfTemperatureInHome(){
+        return temperatureInside-expectedTemperatureService.get();
     }
 
 
