@@ -1,25 +1,18 @@
-import React from 'react';
-import logo from '../resources/logo.svg';
+import React from "react";
+import BasicLineChart from "./BasicLineChart";
+import "../styles/MainContent.scss";
 
 function MainContent() {
-    return (
-        <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+  return (
+    <div>
+      <h1>
+        <i>Zarządzanie energią w nowoczesnym domu</i>
+      </h1>
+      <div className="basicLineChart">
+        <BasicLineChart />
       </div>
-    );
+    </div>
+  );
 }
 
 export default MainContent;
