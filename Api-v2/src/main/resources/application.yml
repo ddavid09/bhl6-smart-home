@@ -1,0 +1,10 @@
+logging:
+  file:
+    path: /var/logs/
+    name: SpringLogs.log
+security:
+  jwtSecret: asdsal!k1sd@asd2#32115dfas@
+  jwtExpirationMs: 3600000
+app:
+  posts:
+    pageSize: 10
