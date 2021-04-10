@@ -12,8 +12,17 @@ public class PowerConsumptionOfElectricalEquipmentServiceImpl implements PowerCo
 
     TimeSimulator timeSimulator;
 
+    public PowerConsumptionOfElectricalEquipmentServiceImpl(TimeSimulator timeSimulator) {
+        this.timeSimulator = timeSimulator;
+    }
+
     @Override
-    public double get() {
+    public double getHeatFreePower(){
+        return 0.7*getPowerConsumption();
+    }
+
+    @Override
+    public double getPowerConsumption() {
         if(timeSimulator.isVacations()){
             return 0.5;
         }

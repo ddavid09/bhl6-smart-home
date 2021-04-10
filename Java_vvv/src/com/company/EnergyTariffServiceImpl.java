@@ -9,6 +9,9 @@ import java.time.format.DateTimeFormatter;
 
 public class EnergyTariffServiceImpl implements EnergyTariffService {
 
+    public EnergyTariffServiceImpl(TimeSimulator timeSimulator) {
+        this.timeSimulator = timeSimulator;
+    }
 
     TimeSimulator timeSimulator;
 

@@ -3,5 +3,7 @@ package com.company;
 
 
 public interface PowerConsumptionOfElectricalEquipmentService {
-    public double get();
+    double getHeatFreePower();
+
+    public double getPowerConsumption();
 }

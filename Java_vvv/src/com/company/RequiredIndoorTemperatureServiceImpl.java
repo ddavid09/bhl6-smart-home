@@ -11,6 +11,10 @@ public class RequiredIndoorTemperatureServiceImpl implements RequiredIndoorTempe
 
     TimeSimulator timeSimulator;
 
+    public RequiredIndoorTemperatureServiceImpl(TimeSimulator timeSimulator) {
+        this.timeSimulator = timeSimulator;
+    }
+
     @Override
     public double get() {
         if(timeSimulator.isVacations()){

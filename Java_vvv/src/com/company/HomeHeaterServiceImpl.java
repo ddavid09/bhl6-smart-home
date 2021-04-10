@@ -3,7 +3,9 @@ package com.company;
 
 
 
-import java.time.LocalDateTime;
+import static java.lang.Double.max;
+import static java.lang.Double.min;
+
 
 public class HomeHeaterServiceImpl implements HomeHeaterService{
 
@@ -19,63 +21,68 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
     private double temperatureInside = 20;
 
     @Override
-    public double getEnergyCost(Mode mode){
-        if(mode == Mode.Maintenance){
-            if(externalTemperatureService.get() > 20){ //>20
-                return 0;
-            } else if(externalTemperatureService.get() > 15){ //15-20
-                return 0.5;
-            } else if(externalTemperatureService.get() > 5){ //5-15
-                return 1;
-            } else if(externalTemperatureService.get() > 0){ //0-5
-                return 2;
-            } else if(externalTemperatureService.get() > -5){ //0 - -5
-                return 3;
-            } else if(externalTemperatureService.get() > -10){ //-5 - 10
-                return 5;
-            } else if(externalTemperatureService.get() > -20){ //-10 - -20
-                return 7;
-            } else{ // <-20
-                return 9;
-            }
-        }
-        if(mode == Mode.Heat){
-            if(externalTemperatureService.get() > 20){ //>20
-                return 0;
-            } else if(externalTemperatureService.get() > 15){ //15-20
-                return 2;
-            } else if(externalTemperatureService.get() > 5){ //5-15
-                return 4;
-            } else if(externalTemperatureService.get() > 0){ //0-5
-                return 5;
-            } else if(externalTemperatureService.get() > -5){ //0 - -5
-                return 6;
-            } else if(externalTemperatureService.get() > -10){ //-5 - 10
-                return 7;
-            } else if(externalTemperatureService.get() > -20){ //-10 - -20
-                return 10;
-            } else{ // <-20
-                return 12;
-            }
-        }
-        else{
-            return 0;
-        }
+    public double getTemperatureInside() {
+        return temperatureInside;
     }
 
     @Override
-    public double simAndGetEnergy(Mode mode, Long minutes) throws Exception {
+    public double getEnergyCost(Mode mode, double freeEnergyInKWh){
+        double returnValue=0;
+        if(mode == Mode.Maintenance){
+            if(externalTemperatureService.get() > 20){ //>20
+                returnValue = 0;
+            } else if(externalTemperatureService.get() > 15){ //15-20
+                returnValue = 0.5;
+            } else if(externalTemperatureService.get() > 5){ //5-15
+                returnValue = 1;
+            } else if(externalTemperatureService.get() > 0){ //0-5
+                returnValue = 2;
+            } else if(externalTemperatureService.get() > -5){ //0 - -5
+                returnValue = 3;
+            } else if(externalTemperatureService.get() > -10){ //-5 - 10
+                returnValue = 5;
+            } else if(externalTemperatureService.get() > -20){ //-10 - -20
+                returnValue = 7;
+            } else{ // <-20
+                returnValue = 9;
+            }
+        }
+        else if(mode == Mode.Heat){
+            if(externalTemperatureService.get() > 20){ //>20
+                returnValue = 0;
+            } else if(externalTemperatureService.get() > 15){ //15-20
+                returnValue = 2;
+            } else if(externalTemperatureService.get() > 5){ //5-15
+                returnValue = 4;
+            } else if(externalTemperatureService.get() > 0){ //0-5
+                returnValue = 5;
+            } else if(externalTemperatureService.get() > -5){ //0 - -5
+                returnValue = 6;
+            } else if(externalTemperatureService.get() > -10){ //-5 - 10
+                returnValue = 7;
+            } else if(externalTemperatureService.get() > -20){ //-10 - -20
+                returnValue = 10;
+            } else{ // <-20
+                returnValue = 12;
+            }
+        }
+        return max(0,returnValue-freeEnergyInKWh);
+    }
+
+    @Override
+    public double simAndGetEnergy(Mode mode, Long minutes, double freeEnergyInKWh) throws Exception {
         if(mode == Mode.Heat){
-            this.temperatureInside = temperatureInside+1;
+            this.temperatureInside = min(temperatureInside+1,25);
         } else if(mode == Mode.Weathering){
             this.weathering(minutes);
         } else if(mode == Mode.NoHeat){
-            this.maintenance(minutes);
+            this.noHeat(minutes);
         }
-        return getEnergyCost(mode)*minutes/60;
+
+        return getEnergyCost(mode,freeEnergyInKWh)*minutes/60;
     }
 
-    private void maintenance(Long minutes){
+    private void noHeat(Long minutes){
         double hoursByOneDegree = 0;
         if(externalTemperatureService.get() > 20){ //>20
             hoursByOneDegree = 20;
@@ -96,7 +103,9 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
         }
 
         double temperatureDecrease = hoursByOneDegree*(minutes/60);
-        this.temperatureInside = this.temperatureInside-temperatureDecrease;
+        if(externalTemperatureService.get()<temperatureInside){
+            this.temperatureInside = max(externalTemperatureService.get(),(this.temperatureInside-temperatureDecrease));
+        }
     }
 
     private void weathering(Long minutes) throws Exception {
@@ -104,11 +113,13 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
 
         double externalTemperature = externalTemperatureService.get();
 
-        if(externalTemperature>temperatureInside){
-            this.temperatureInside = temperatureInside + (externalTemperature-temperatureInside)*percentageOfHour;
+        if(externalTemperature < temperatureInside){ //chlodze
+            this.temperatureInside = temperatureInside - (temperatureInside-externalTemperature)*percentageOfHour;
+            this.temperatureInside = max(temperatureInside,externalTemperature);
         }
-        else{
-            this.temperatureInside = temperatureInside - (externalTemperature+temperatureInside)*percentageOfHour;
+        else{ //grzeje
+            this.temperatureInside = temperatureInside + (externalTemperature-temperatureInside)*percentageOfHour;
+            this.temperatureInside = min(temperatureInside,externalTemperature);
         }
     }
 

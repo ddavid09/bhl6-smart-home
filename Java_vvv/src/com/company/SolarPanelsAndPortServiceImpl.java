@@ -107,8 +107,8 @@ public class SolarPanelsAndPortServiceImpl implements SolarPanelsAndPortService{
         return timeSimulator.getLocalDateTime().toLocalTime().isAfter(LocalTime.parse(time, DateTimeFormatter.ISO_LOCAL_TIME));
     }
 
-    private boolean timeIsBetween(String beforeTime, String afterTime){
-        return (timeIsAfter(beforeTime) && timeIsBefore(afterTime));
+    private boolean timeIsBetween(String afterTime, String beforeTime){
+        return (timeIsAfter(afterTime) && timeIsBefore(beforeTime));
     }
 
     @Override

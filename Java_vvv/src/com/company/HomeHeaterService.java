@@ -6,9 +6,11 @@ public interface HomeHeaterService {
         Heat,Maintenance,NoHeat,Weathering
     }
 
-    double getEnergyCost(HomeHeaterServiceImpl.Mode mode);
+    double getTemperatureInside();
 
-    double simAndGetEnergy(HomeHeaterServiceImpl.Mode mode, Long minutes) throws Exception;
+    double getEnergyCost(Mode mode, double freeEnergyInKWh);
+
+    double simAndGetEnergy(Mode mode, Long minutes, double freeEnergyInKWh) throws Exception;
 
 
 }
