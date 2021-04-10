@@ -133,4 +133,8 @@ public class EnvironmentData {
     public double getTempDifferenceInReq() {
         return tempDifferenceInReq;
     }
+
+    public double getLooseHeat() {
+        return looseHeat;
+    }
 }

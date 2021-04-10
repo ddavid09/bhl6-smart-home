@@ -2,8 +2,16 @@ package com.company.SimulatorPackage;
 
 import com.company.SolarPanelsAndPortServiceImpl;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SequenceWriter;
 
 import static java.lang.Math.max;
 
@@ -32,15 +40,18 @@ public class StartSimulator {
         double waterLevel = 0;
         double powerUsage;
         double earnings = 0;
+        boolean written = false;
 
 
         environment.getTimeSimulator().set(environment.getTimeSimulator().getLocalDateTime().plusHours(3), false);
         System.out.println(environment.getTimeSimulator().getLocalDateTime() + " :: Rozpoczęcie symulacji");
-        while(environmentData.getSimulationTime() < 10000) {
+        while(environmentData.getSimulationTime() < 525600) {
             environmentData.downloadNewData(environment);
 
-            if(environment.getTimeSimulator().getLocalDateTime().getHour() == 0 && environment.getTimeSimulator().getLocalDateTime().getMinute() == 0)
+            if(environment.getTimeSimulator().getLocalDateTime().getHour() == 0 && environment.getTimeSimulator().getLocalDateTime().getMinute() == 0){
                 newDay = true;
+                written = false;
+            }
 
             if(newDay){
                 year = environment.getTimeSimulator().getLocalDateTime().getYear();
@@ -229,6 +240,74 @@ public class StartSimulator {
             System.out.println("waterLevel: " + waterLevel);
             environment.getTimeSimulator().moveTimeForwardByMinutes(1);
             environmentData.incrementSimulationTime();
+
+            DataClass dataObj = new DataClass(
+                    environment.getTimeSimulator().getLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                    environment.getTimeSimulator().getLocalDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yy")),
+                    environmentData.getTempIn(),
+                    environmentData.getTempExpected(),
+                    environmentData.getTempOut(),
+                    environmentData.getAvgPower(),
+                    environmentData.getDevicesHeat(),
+                    environmentData.getClouds(),
+                    environmentData.getAvgPowerHomeHeat(),
+                    environmentData.getAvgPowerHomeMaintenance(),
+                    environmentData.getSolarSystemPower(),
+                    environmentData.getLooseHeat(),
+                    airing,
+                    heating,
+                    maintaining,
+                    falling,
+                    heatingWater,
+                    waterLevel,
+                    powerUsage,
+                    earnings,
+                    salary,
+                    batteryCapacity,
+                    buyPrice,
+                    sellPrice,
+                    workMode
+            );
+
+            String dateName = environment.getTimeSimulator().getLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            try {
+                File file = new File("D:\\5_Studia\\8_HACKATHON_BHL\\FrontEnd\\my-app\\src\\resources\\data\\" + dateName + ".json");
+                FileWriter fileWriter = new FileWriter(file, true);
+
+                ObjectMapper mapper = new ObjectMapper();
+
+                SequenceWriter seqWriter = mapper.writer().writeValuesAsArray(fileWriter);
+                seqWriter.write(dataObj);
+                seqWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            DayDataClass dayDataObj = new DayDataClass(
+                    environment.getTimeSimulator().getLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                    environment.getTimeSimulator().getLocalDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yy")),
+                    earnings,
+                    salary
+            );
+
+            String time = environment.getTimeSimulator().getLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+            System.out.println("--------------------------------------------------------- dawaj!" + time);
+            if((time.equals("23:59") || time.equals("23:58")) && !written){
+                written = true;
+                try {
+                    File file = new File("D:\\5_Studia\\8_HACKATHON_BHL\\FrontEnd\\my-app\\src\\resources\\data\\daily.json");
+                    FileWriter fileWriter = new FileWriter(file, true);
+
+                    ObjectMapper mapper = new ObjectMapper();
+
+                    SequenceWriter seqWriter = mapper.writer().writeValuesAsArray(fileWriter);
+                    seqWriter.write(dayDataObj);
+                    seqWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
