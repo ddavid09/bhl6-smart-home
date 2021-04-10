@@ -29,7 +29,7 @@ public class StartSimulator {
         double powerUsage;
 
 
-        environment.getTimeSimulator().set(environment.getTimeSimulator().getLocalDateTime().plusHours(12), false);
+        environment.getTimeSimulator().set(environment.getTimeSimulator().getLocalDateTime().plusHours(3), false);
         System.out.println(environment.getTimeSimulator().getLocalDateTime() + " :: Rozpoczęcie symulacji");
         while(environmentData.getSimulationTime() < 1000) {
             environmentData.downloadNewData(environment);
@@ -55,8 +55,10 @@ public class StartSimulator {
                 newDay = false;
             }
 
-            double heatingPower = environmentData.getDevicesHeat();
-            environmentData.incrementTempIn(heatingPower / environmentData.getAvgPowerHomeHeat());
+            if(environmentData.getAvgPowerHomeHeat() != 0){
+                double heatingPower = environmentData.getDevicesHeat();
+                environmentData.incrementTempIn(heatingPower / environmentData.getAvgPowerHomeHeat());
+            }
 
             if(airing && airingTime < 59){
                 System.out.println("Wietrzenie!");
