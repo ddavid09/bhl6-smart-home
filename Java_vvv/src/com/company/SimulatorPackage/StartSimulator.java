@@ -220,8 +220,8 @@ public class StartSimulator {
             }
 
             environmentData.printData(environment.getTimeSimulator().getLocalDateTime());
-            System.out.println("Koszty opłacenia zasilania: " + salary);
-            earnings -= salary;
+            System.out.println("Koszty opłacenia zasilania: " + salary / 60);
+            earnings -= salary / 60;
             System.out.println("Fundusz: " + earnings);
             System.out.println("Tryb pracy: " + workMode);
             System.out.println("batteryCapacity: " + batteryCapacity);
