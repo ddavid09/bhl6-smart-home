@@ -23,7 +23,7 @@ public class SolarPanelsAndPortServiceImpl implements SolarPanelsAndPortService{
         this.energyTariffService = energyTariffService;
     }
 
-    enum Mode{
+    public enum Mode{
         BatteryCharge,SellSolarEnergy,FullBatteryCharge,BatterySupport
     }
 
@@ -281,7 +281,7 @@ public class SolarPanelsAndPortServiceImpl implements SolarPanelsAndPortService{
         this.maxPortOutput = maxPortOutput;
     }
 
-
-
-
+    public double getActualBatteryCapacity(){
+        return this.actualBatteryCapacity;
+    }
 }

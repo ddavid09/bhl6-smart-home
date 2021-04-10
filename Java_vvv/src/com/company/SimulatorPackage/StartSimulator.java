@@ -1,11 +1,15 @@
 package com.company.SimulatorPackage;
 
+import com.company.SolarPanelsAndPortServiceImpl;
+
 import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static java.lang.Math.max;
+
 public class StartSimulator {
 
-    public static void startSimulator(){
+    public static void startSimulator() throws Exception {
         Environment environment = new Environment(false);
         EnvironmentData environmentData = new EnvironmentData(environment, 10);
         int people = 3; //Licza mieszkańców domu od 3 do 6
@@ -27,6 +31,7 @@ public class StartSimulator {
         int airingTime = 0;
         double waterLevel = 0;
         double powerUsage;
+        double earnings = 0;
 
 
         environment.getTimeSimulator().set(environment.getTimeSimulator().getLocalDateTime().plusHours(3), false);
@@ -145,8 +150,8 @@ public class StartSimulator {
                 powerUsage += 6;
             }
 
-            double heatingPowerNeeded = environmentData.getAvgPowerHomeHeat() - environmentData.getDevicesHeat();
-            double maintainingPowerNeeded = environmentData.getAvgPowerHomeMaintenance() - environmentData.getDevicesHeat();
+            double heatingPowerNeeded = max(0, environmentData.getAvgPowerHomeHeat() - environmentData.getDevicesHeat());
+            double maintainingPowerNeeded = max(0, environmentData.getAvgPowerHomeMaintenance() - environmentData.getDevicesHeat());
 
             if(heating){
                 if(heatingPowerNeeded + powerUsage <= 10){
@@ -176,7 +181,52 @@ public class StartSimulator {
                 environmentData.decrementTempIn(1);
             }
 
+            double salary;
+            double batteryCapacity = environment.getSolarPanelsAndPortService().getActualBatteryCapacity();
+            SolarPanelsAndPortServiceImpl.Mode workMode;
+            double buyPrice = environment.getEnergyTariffService().getBuyPrice();
+            double sellPrice = environment.getEnergyTariffService().getSellPrice();
+            if(sellPrice > buyPrice){
+                if(batteryCapacity < environment.getSolarPanelsAndPortService().getMaxBatteryCapacity()){
+                    workMode = SolarPanelsAndPortServiceImpl.Mode.FullBatteryCharge;
+                    salary = environment.getSolarPanelsAndPortService().simAndGetCost(powerUsage, workMode);
+                }
+                else{
+                    workMode = SolarPanelsAndPortServiceImpl.Mode.SellSolarEnergy;
+                    salary = environment.getSolarPanelsAndPortService().simAndGetCost(powerUsage, workMode);
+                }
+            }
+            else{
+                if(environmentData.getSolarSystemPower() > powerUsage){
+                    if(batteryCapacity < environment.getSolarPanelsAndPortService().getMaxBatteryCapacity()){
+                        workMode = SolarPanelsAndPortServiceImpl.Mode.BatteryCharge;
+                        salary = environment.getSolarPanelsAndPortService().simAndGetCost(powerUsage, workMode);
+                    }
+                    else{
+                        workMode = SolarPanelsAndPortServiceImpl.Mode.SellSolarEnergy;
+                        salary = environment.getSolarPanelsAndPortService().simAndGetCost(powerUsage, workMode);
+                    }
+                }
+                else{
+                    if(batteryCapacity > 0){
+                        workMode = SolarPanelsAndPortServiceImpl.Mode.BatterySupport;
+                        salary = environment.getSolarPanelsAndPortService().simAndGetCost(powerUsage, workMode);
+                    }
+                    else{
+                        workMode = SolarPanelsAndPortServiceImpl.Mode.BatteryCharge;
+                        salary = environment.getSolarPanelsAndPortService().simAndGetCost(powerUsage, workMode);
+                    }
+                }
+            }
+
             environmentData.printData(environment.getTimeSimulator().getLocalDateTime());
+            System.out.println("Koszty opłacenia zasilania: " + salary);
+            earnings -= salary;
+            System.out.println("Fundusz: " + earnings);
+            System.out.println("Tryb pracy: " + workMode);
+            System.out.println("batteryCapacity: " + batteryCapacity);
+            System.out.println("powerUsage: " + powerUsage);
+            System.out.println("waterLevel: " + waterLevel);
             environment.getTimeSimulator().moveTimeForwardByMinutes(1);
             environmentData.incrementSimulationTime();
         }

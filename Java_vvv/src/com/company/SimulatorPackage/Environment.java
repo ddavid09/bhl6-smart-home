@@ -10,6 +10,7 @@ public class Environment {
     private final CloudSimulator cloudSimulator;
     private final HomeHeaterServiceImpl homeHeaterService;
     private final SolarPanelsAndPortServiceImpl solarPanelsAndPortService;
+    private final EnergyTariffServiceImpl energyTariffService;
 
     public Environment(boolean isVacation){
         this.timeSimulator = new TimeSimulator(isVacation);
@@ -20,6 +21,7 @@ public class Environment {
         this.homeHeaterService = new HomeHeaterServiceImpl(expectedOutdoorTemperatureService, timeSimulator);
         EnergyTariffServiceImpl energyTariffService = new EnergyTariffServiceImpl(timeSimulator);
         this.solarPanelsAndPortService = new SolarPanelsAndPortServiceImpl(cloudSimulator, timeSimulator, energyTariffService);
+        this.energyTariffService = new EnergyTariffServiceImpl(timeSimulator);
     }
 
     public TimeSimulator getTimeSimulator() {
@@ -48,5 +50,9 @@ public class Environment {
 
     public SolarPanelsAndPortServiceImpl getSolarPanelsAndPortService() {
         return solarPanelsAndPortService;
+    }
+
+    public EnergyTariffServiceImpl getEnergyTariffService(){
+        return energyTariffService;
     }
 }
