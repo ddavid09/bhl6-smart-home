@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class StartSimulator {
 
-    public static void startSimulator() throws InterruptedException {
+    public static void startSimulator(){
         Environment environment = new Environment(false);
         EnvironmentData environmentData = new EnvironmentData(environment, 10);
         int people = 3; //Licza mieszkańców domu od 3 do 6
@@ -31,7 +31,7 @@ public class StartSimulator {
 
         environment.getTimeSimulator().set(environment.getTimeSimulator().getLocalDateTime().plusHours(3), false);
         System.out.println(environment.getTimeSimulator().getLocalDateTime() + " :: Rozpoczęcie symulacji");
-        while(environmentData.getSimulationTime() < 1000) {
+        while(environmentData.getSimulationTime() < 10000) {
             environmentData.downloadNewData(environment);
 
             if(environment.getTimeSimulator().getLocalDateTime().getHour() == 0 && environment.getTimeSimulator().getLocalDateTime().getMinute() == 0)
@@ -53,11 +53,6 @@ public class StartSimulator {
                     System.out.println(washTime[i]);
                 }
                 newDay = false;
-            }
-
-            if(environmentData.getAvgPowerHomeHeat() != 0){
-                double heatingPower = environmentData.getDevicesHeat();
-                environmentData.incrementTempIn(heatingPower / environmentData.getAvgPowerHomeHeat());
             }
 
             if(airing && airingTime < 59){
@@ -149,25 +144,30 @@ public class StartSimulator {
                 waterLevel += 2.5;
                 powerUsage += 6;
             }
+
+            double heatingPowerNeeded = environmentData.getAvgPowerHomeHeat() - environmentData.getDevicesHeat();
+            double maintainingPowerNeeded = environmentData.getAvgPowerHomeMaintenance() - environmentData.getDevicesHeat();
+
             if(heating){
-                if(environmentData.getAvgPowerHomeHeat() + powerUsage <= 10){
-                    powerUsage += environmentData.getAvgPowerHomeHeat();
+                if(heatingPowerNeeded + powerUsage <= 10){
+                    powerUsage += heatingPowerNeeded;
                     environmentData.incrementTempIn(1);
                 }
                 else {
-                    double x = 10 - powerUsage - environmentData.getAvgPowerHomeHeat();
-                    x = environmentData.getAvgPowerHomeHeat() + x;
+                    double x = 10 - powerUsage - heatingPowerNeeded;
+                    x = heatingPowerNeeded + x;
                     powerUsage += x;
-                    environmentData.incrementTempIn(x / environmentData.getAvgPowerHomeHeat());
+                    if(x > maintainingPowerNeeded) environmentData.incrementTempIn(x / environmentData.getAvgPowerHomeHeat());
+                    if(x < maintainingPowerNeeded) environmentData.decrementTempIn(x / environmentData.getAvgPowerHomeMaintenance());
                 }
             }
             if(maintaining){
-                if(environmentData.getAvgPowerHomeMaintenance() + powerUsage <= 10){
-                    powerUsage += environmentData.getAvgPowerHomeMaintenance();
+                if(maintainingPowerNeeded + powerUsage <= 10){
+                    powerUsage += maintainingPowerNeeded;
                 }
                 else {
-                    double x = 10 - powerUsage - environmentData.getAvgPowerHomeMaintenance();
-                    x = environmentData.getAvgPowerHomeMaintenance() + x;
+                    double x = 10 - powerUsage - maintainingPowerNeeded;
+                    x = maintainingPowerNeeded + x;
                     powerUsage += x;
                     environmentData.decrementTempIn(x / environmentData.getAvgPowerHomeMaintenance());
                 }
@@ -178,7 +178,6 @@ public class StartSimulator {
 
             environmentData.printData(environment.getTimeSimulator().getLocalDateTime());
             environment.getTimeSimulator().moveTimeForwardByMinutes(1);
-            //Thread.sleep(1000);
             environmentData.incrementSimulationTime();
         }
     }
