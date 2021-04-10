@@ -5,3 +5,19 @@ $base-font-color: #ffffff;
     background-color: $base-background-color;
     color: $base-font-color;
 }
+
+.wykresDuzy{
+    display: box;
+    width: calc(100% - 40px);
+    float: left;
+    overflow: hidden;
+    margin: 20px;
+}
+
+.wykres{
+    display: box;
+    width: calc(50% - 40px);
+    float: left;
+    overflow: hidden;
+    margin: 20px;
+}
