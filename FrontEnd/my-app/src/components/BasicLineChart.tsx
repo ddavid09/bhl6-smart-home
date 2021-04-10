@@ -7,7 +7,7 @@ import BB from "../resources/data/daily.json"
 const BasicLineChart = () => (
   <div>
     <div className="wykresDuzy">
-    <h2>Wykres roczny - Fundusz i koszty grzewcze</h2>
+    <h2>Wykres roczny - Fundusze</h2>
     <LineChart width={1400} height={600} data={BB} >
       <Line type="monotone" dataKey="earnings" stroke="#8884d8" strokeWidth={2} dot={false}/>
       <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
