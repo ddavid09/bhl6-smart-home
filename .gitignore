@@ -348,3 +348,8 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+Api-v2/lib/
+Java_vvv/.idea/
+Java_vvv/out/
+Java_vvv/Java_vvv.iml
+Api-v2/SpringLogs.log.2021-04-09.0.gz
