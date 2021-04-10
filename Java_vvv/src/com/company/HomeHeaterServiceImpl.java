@@ -102,10 +102,32 @@ public class HomeHeaterServiceImpl implements HomeHeaterService{
             hoursByOneDegree = 0.25;
         }
 
-        double temperatureDecrease = hoursByOneDegree*(minutes/60);
+        double temperatureDecrease = hoursByOneDegree*(minutes/60.0);
         if(externalTemperatureService.get()<temperatureInside){
             this.temperatureInside = max(externalTemperatureService.get(),(this.temperatureInside-temperatureDecrease));
         }
+    }
+
+    public  double looseHeat(){
+        double returnValue = 0;
+        if(externalTemperatureService.get() > 20){ //>20
+            returnValue = 0;
+        } else if(externalTemperatureService.get() > 15){ //15-20
+            returnValue = 1.0 / 60.0 / 6.0;
+        } else if(externalTemperatureService.get() > 5){ //5-15
+            returnValue = 1.0 / 60.0 / 4.0;
+        } else if(externalTemperatureService.get() > 0){ //0-5
+            returnValue = 1.0 / 60.0 / 3.0;
+        } else if(externalTemperatureService.get() > -5){ //0 - -5
+            returnValue = 1.0 / 60.0 / 2.0;
+        } else if(externalTemperatureService.get() > -10){ //-5 - 10
+            returnValue = 1.0 / 60.0 / 1.0;
+        } else if(externalTemperatureService.get() > -20){ //-10 - -20
+            returnValue = 1.0 / 60.0 / 0.5;
+        } else{ // <-20
+            returnValue = 1.0 / 60.0 / 0.25;
+        }
+        return returnValue;
     }
 
     private void weathering(Long minutes) throws Exception {
